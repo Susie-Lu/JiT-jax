@@ -1,0 +1,46 @@
+model:
+  name: "JiT-L/16" # or "JiT-B/16"
+
+dataset:
+  image_size: 256
+  num_channels: 3
+  num_classes: 1000
+  data_dir: "imagenet" # Add the directory of ImageNet
+  fid_stats_dir: "fid-stats/jit_in${dataset.image_size}_stats.npz"
+
+output_dir: "output_${model.name}"
+
+training:
+  batch_size: 1024
+  ckpt_dir: "${output_dir}/checkpoints"
+  num_dataloader_workers: 32
+  prefetch: 3
+  num_epochs: 200
+  log_every: 20
+  log_loss_every: 100
+  ckpt_every: 10
+  num_ckpt_kept: 2
+  sample_every: 10
+  class_labels: [207, 360, 388, 113, 355, 980, 323, 979]
+  num_per_class: 5
+  image_name: "${output_dir}/sample-epoch-"
+  compute_fid_every: 20
+  decay: 0.9996
+  key_seed: 321
+  key_fid: 368
+
+wandb_info:
+  entity: "TODO" # Add your wandb entity
+  project: "JiT"
+  name: "${model.name}"
+  saved_run_id: "${output_dir}/wandb_run_id.json"
+  key: "" # Add your wandb key
+
+hydra:
+  run:
+    dir: "${output_dir}/${now:%Y-%m-%d}/${now:%H-%M-%S}"
+
+logging:
+  levels:
+    main: "INFO"    # Log level for process_index 0
+    worker: "ERROR"  # Log level for all other processes
